@@ -1,54 +1,36 @@
-'''import sqlite3
+import asyncio
+import winrt.windows.devices.geolocation as geolocation
 
-# Connect to your specific database (replace with your actual db filename)
-conn = sqlite3.connect('stellar diary.db')
-cursor = conn.cursor()
+async def get_windows_location():
+    # 1. Request permission from Windows
+    access_status = await geolocation.Geolocator.request_access_async()
 
-# Query the hidden master table for anything categorized as a 'table'
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    # 2. Check if Windows allows Python to access location
+    if access_status != geolocation.GeolocationAccessStatus.ALLOWED:
+        print("Access denied! You need to allow location access in Windows settings.")
+        return
 
-# Fetch the results
-tables = cursor.fetchall()
+    # 3. Initialize the geolocator
+    locator = geolocation.Geolocator()
 
-if tables:
-    print("Tables found in your database:")
-    for table in tables:
-        # fetchall() returns a list of tuples like [('table_name',)], so we slice the string out with [0]
-        print(f" -> {table[0]}")
-else:
-    print("Your database is currently empty. No tables found!")
+    try:
+        print("Fetching exact coordinates... (this might take a few seconds)")
 
-conn.close()'''
+        # 4. Wait for Windows to pinpoint the location
+        pos = await locator.get_geoposition_async()
 
-import sqlite3
+        # 5. Extract the data
+        lat = pos.coordinate.point.position.latitude
+        lon = pos.coordinate.point.position.longitude
+        accuracy = pos.coordinate.accuracy  # Tells you how precise the reading is
 
-# Connect to your database
-conn = sqlite3.connect('stellar diary.db')
-cursor = conn.cursor()
+        print("\n--- Location Found ---")
+        print(f"Latitude: {lat}")
+        print(f"Longitude: {lon}")
+        print(f"Accuracy: within {accuracy} meters")
 
-# Replace this with the exact name of the table you found in the last step
-table_name = "star_info"
+        return True,lat, lon
 
-# The PRAGMA command fetches the blueprint of the table
-cursor.execute(f"PRAGMA table_info('{table_name}');")
-columns = cursor.fetchall()
-
-if columns:
-    print(f"Blueprint for table: '{table_name}'\n")
-    # Formatting a clean header for the terminal
-    print(f"{'CID':<5} | {'Column Name':<20} | {'Data Type':<15} | {'Not Null':<10} | {'Primary Key'}")
-    print("-" * 75)
-
-    for col in columns:
-        cid = col[0]  # Column ID
-        name = col[1]  # Column Name
-        dtype = col[2]  # Data Type (INTEGER, TEXT, etc.)
-        notnull = "Yes" if col[3] == 1 else "No"  # Is it allowed to be empty?
-        pk = "Yes" if col[5] == 1 else "No"  # Is it the Primary Key?
-
-        # Printing each row with aligned spacing
-        print(f"{cid:<5} | {name:<20} | {dtype:<15} | {notnull:<10} | {pk}")
-else:
-    print(f"Table '{table_name}' does not exist or is completely empty.")
-
-conn.close()
+    except Exception as e:
+        print(f"Failed to get location: {e}")
+        return False,"-","-"

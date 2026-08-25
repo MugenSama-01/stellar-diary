@@ -6,8 +6,10 @@ from skyfield.api import Star, load
 from skyfield.data import hipparcos
 from skyfield.api import wgs84
 from timezonefinder import TimezoneFinder
+import asyncio
+import location
 
-coordinates=[22.36487158965426,88.43023606306518] #[lat,lon]
+status,lat,lon= asyncio.run(location.get_windows_location())#[lat,lon]
 
 with load.open(hipparcos.URL) as f:
     df = hipparcos.load_dataframe(f)
@@ -71,8 +73,8 @@ def add(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,direc
     return n
 
 def location():
-    if coordinates:
-        return coordinates[0], coordinates[1], tf.timezone_at(lat=coordinates[0], lng=coordinates[1])
+    if status:
+        return lat, lon, tf.timezone_at(lat=lat, lng=lon)
     else:
         return "--","--","--"
 

@@ -167,7 +167,7 @@ class new_log(ctk.CTkToplevel):
         self.time_zonex.place(x=150, y=110)
         self.time_zonex.insert(0,tz)
 
-        self.msgbox=ctk.CTkLabel(self,font=("Segoe UI", 15, "bold"),text_color="red")
+        self.msgbox=ctk.CTkLabel(self,font=("Segoe UI", 15, "bold"),text_color="red",text="")
         self.msgbox.place(x=1070,y=750)
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
