@@ -67,7 +67,7 @@ class new_log(ctk.CTkToplevel):
         y = int((screen_height / 2) - (window_height / 2))
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-        lat,lon,tz=backend.location()
+        lat,lon,tz=backend.get_location()
 
         im = ctk.CTkImage(dark_image=sky2, size=(1400, 800))
 
@@ -132,7 +132,7 @@ class new_log(ctk.CTkToplevel):
         self.add = ctk.CTkButton(self.frame, text="Add", border_color="black", fg_color="blue", width=120,command=self.add)
         self.add.place(x=100, y=430)
 
-        self.save = ctk.CTkButton(self.frame, text="Save", border_color="black", fg_color="blue", width=120)
+        self.save = ctk.CTkButton(self.frame, text="Save", border_color="black", fg_color="blue", width=120,command=self.save_logs)
         self.save.place(x=300, y=430)
 
         self.moto = ctk.CTkLabel(self.frame, width=160, height=30, image=frame_crop_log(150, 500, 160, 30),text="Keep Looking Up!!!", font=("Segoe UI", 18, "bold"), anchor="w", text_color="#F0F4F8")
@@ -243,6 +243,10 @@ class new_log(ctk.CTkToplevel):
             self.textbox.configure(state="disabled")
         else:
             self.msg_send("Data already enlisted")
+
+    def save_logs(self):
+        backend.save()
+        self.msg_send("Data saved")
 
     def msg_send(self,msg):
         self.msgbox.configure(text=msg)

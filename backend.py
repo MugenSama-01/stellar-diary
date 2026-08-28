@@ -39,7 +39,8 @@ t = ts.now()
             altitude float,
             direction TEXT,
             brightness TEXT,
-            utc_start_time TEXT
+            utc_start_time TEXT,
+            hip_id INTEGER
 '''
 
 '''stars=pd.read_csv("stars.csv")
@@ -93,7 +94,19 @@ def add(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,direc
 
     return True
 
-def location():
+def save():
+    insert_query = """
+                   INSERT INTO observation (hip_id,date, time_from, time_to, latitude, longitude, 
+                                            light_pollution, weather, azimuth, altitude, 
+                                            direction, brightness, utc_start_time) 
+                   VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   """
+
+    for log in logs:
+        mc.execute(insert_query, log)
+    db.commit()
+
+def get_location():
     if status:
         return lat, lon, tf.timezone_at(lat=lat, lng=lon)
     else:
