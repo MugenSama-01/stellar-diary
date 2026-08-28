@@ -233,14 +233,16 @@ class new_log(ctk.CTkToplevel):
             self.msg_send("Invalid Coordinates")
             return
 
-        backend.add(hip, self.cal.get_date(), self.time_from_inputx.get(),
+        if backend.add(hip, self.cal.get_date(), self.time_from_inputx.get(),
                         self.time_to_inputx.get(), float(self.latitudex.get()),
                         float(self.longitudex.get()), self.lp_inputcb.get(),
                         self.weather_inputcb.get(), self.direction_inputcd.get(),
-                        self.brightness_inputcb.get())
-        self.textbox.configure(state="normal")
-        self.textbox.insert("end", f"{hip} ({starname})\n")
-        self.textbox.configure(state="disabled")
+                        self.brightness_inputcb.get(),self.time_zonex.get()):
+            self.textbox.configure(state="normal")
+            self.textbox.insert("end", f"{hip} ({starname})\n")
+            self.textbox.configure(state="disabled")
+        else:
+            self.msg_send("Data already enlisted")
 
     def msg_send(self,msg):
         self.msgbox.configure(text=msg)

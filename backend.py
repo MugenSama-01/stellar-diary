@@ -6,6 +6,8 @@ from skyfield.api import Star, load
 from skyfield.data import hipparcos
 from skyfield.api import wgs84
 from timezonefinder import TimezoneFinder
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import asyncio
 import location
 
@@ -20,6 +22,9 @@ earth = planets['earth']
 ts = load.timescale()
 t = ts.now()
 
+#22.36504286515413,88.43000192857329
+#idx_time ON observation(utc_start_time)
+#idx_location ON observation(latitude, longitude)
 
 '''observation table structure
             Observation_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +38,8 @@ t = ts.now()
             azimuth float,
             altitude float,
             direction TEXT,
-            brightness TEXT
+            brightness TEXT,
+            utc_start_time TEXT
 '''
 
 '''stars=pd.read_csv("stars.csv")
@@ -49,28 +55,43 @@ mc=db.cursor()
 mc.execute("PRAGMA table_info(Observation);")'''
 
 logs=[]
+catch=[]
 db = sqlite3.connect('stellar diary.db')
 mc = db.cursor()
 
 tf = TimezoneFinder()
 
-def add(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,direction,brightness):
+def add(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,direction,brightness,time_zone):
+    # correcting the format and telling its zone
+    dt=datetime.strptime(f"{date} {timef}", "%d-%m-%Y %H:%M").replace(tzinfo=ZoneInfo(time_zone))
 
+    #az,alt finding
     a = Star.from_dataframe(df.loc[hip_id])
     loc = earth + wgs84.latlon(latitude, longitude, elevation_m=43)
-    astro = loc.at(ts.utc(2025, 1, 1, 20, 30, 00)).observe(a)
+    astro = loc.at(ts.from_datetime(dt)).observe(a)
     app = astro.apparent()
     alt, az, distance = app.altaz()
 
-    mc = db.cursor()
+    #finalizing data
+    alt_deg,az_deg=round(alt.degrees,4),round(az.degrees,4)
+    latitude,longitude=round(latitude,3),round(longitude,3)
+    dt=dt.astimezone(ZoneInfo("UTC")) #UTC time
+    dt = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+    if [date,alt_deg,az_deg] in catch:
+        return False
+
+    '''mc = db.cursor()
     mc.execute(f"SELECT * FROM star_info WHERE hip={hip_id}")
     n=mc.fetchone()
     print(n)
-    n=n[7]
+    n=n[7]'''
 
-    logs.append([hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,az,alt,direction,brightness])
-    print(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,az,alt,direction,brightness)
-    return n
+    catch.append([date,alt_deg,az_deg])
+    logs.append([hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,az_deg,alt_deg,direction,brightness,dt])
+    print(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,az,alt,direction,brightness,dt)
+
+    return True
 
 def location():
     if status:
@@ -101,7 +122,3 @@ def sname(hip):
         return ""
     else:
         return pname
-
-
-
-
