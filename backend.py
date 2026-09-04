@@ -22,12 +22,14 @@ earth = planets['earth']
 ts = load.timescale()
 t = ts.now()
 
-#22.36504286515413,88.43000192857329
 #idx_time ON observation(utc_start_time)
 #idx_location ON observation(latitude, longitude)
+#idx_hip ON observation(hip_id)
 
 '''observation table structure
             Observation_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            hip_id INTEGER,
+            star_name TEXT,
             date TEXT,
             time_from TEXT,
             time_to TEXT,
@@ -40,7 +42,7 @@ t = ts.now()
             direction TEXT,
             brightness TEXT,
             utc_start_time TEXT,
-            hip_id INTEGER
+            
 '''
 
 '''stars=pd.read_csv("stars.csv")
@@ -62,7 +64,7 @@ mc = db.cursor()
 
 tf = TimezoneFinder()
 
-def add(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,direction,brightness,time_zone):
+def add(hip_id,star_name,date,timef,timet,latitude,longitude,light_pollution,weather,direction,brightness,time_zone):
     # correcting the format and telling its zone
     dt=datetime.strptime(f"{date} {timef}", "%d-%m-%Y %H:%M").replace(tzinfo=ZoneInfo(time_zone))
 
@@ -89,22 +91,24 @@ def add(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,direc
     n=n[7]'''
 
     catch.append([date,alt_deg,az_deg])
-    logs.append([hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,az_deg,alt_deg,direction,brightness,dt])
-    print(hip_id,date,timef,timet,latitude,longitude,light_pollution,weather,az,alt,direction,brightness,dt)
+    logs.append([hip_id,star_name, date,timef,timet,latitude,longitude,light_pollution,weather,az_deg,alt_deg,direction,brightness,dt])
 
     return True
 
 def save():
+    if not logs:
+        return
     insert_query = """
-                   INSERT INTO observation (hip_id,date, time_from, time_to, latitude, longitude, 
+                   INSERT INTO observation (hip_id,star_name, date, time_from, time_to, latitude, longitude, 
                                             light_pollution, weather, azimuth, altitude, 
                                             direction, brightness, utc_start_time) 
-                   VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                    """
 
     for log in logs:
         mc.execute(insert_query, log)
     db.commit()
+    logs.clear()
 
 def get_location():
     if status:
@@ -135,3 +139,22 @@ def sname(hip):
         return ""
     else:
         return pname
+
+def get_it_ALL():
+    i = "SELECT * FROM Observation"
+    mc.execute(i)
+    return mc.fetchall()
+
+def filter(date, hip):
+    if date=="--":
+        i = "SELECT * FROM Observation WHERE hip_id = ?"
+        mc.execute(i, (hip,))
+        return mc.fetchall()
+    if hip=="--":
+        i = "SELECT * FROM Observation WHERE date = ?"
+        mc.execute(i, (date,))
+        return mc.fetchall()
+    i="SELECT * FROM Observation WHERE hip_id = ? and date = ?"
+    mc.execute(i, (hip,date,))
+    return mc.fetchall()
+
