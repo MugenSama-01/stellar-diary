@@ -78,6 +78,12 @@ class main(ctk.CTk):
         self.filter= ctk.CTkButton(self, text="Filter",command=self.filter)
         self.filter.place(x=1150, y=320)
 
+        self.reset = ctk.CTkButton(self, text="Reset", command=self.reset)
+        self.reset.place(x=1150, y=370)
+
+        self.back=ctk.CTkButton(self, text="Go Back", command=self.back)
+        self.back.place(x=1150, y=700)
+
     def show_data(self,logs):
         for row_index, log in enumerate(logs):
             row_frame = ctk.CTkFrame(self.logs_frame, fg_color="gray15", corner_radius=5)
@@ -112,6 +118,12 @@ class main(ctk.CTk):
         logs= backend.filter(date,hip)
         self.show_data(logs)
 
+    def reset(self):
+        self.clear_rows()
+        self.show_data(backend.get_it_ALL())
+
+    def back(self):
+        pass
 
 
 

@@ -64,6 +64,7 @@ def frame2_crop_log(x, y, w, h):
 class new_log(ctk.CTkToplevel):
     def __init__(self,parent):
         super().__init__(parent)
+        self.parent = parent
 
         window_width = 1400
         window_height = 800
@@ -176,6 +177,9 @@ class new_log(ctk.CTkToplevel):
         self.msgbox=ctk.CTkLabel(self,font=("Segoe UI", 15, "bold"),text_color="red",text="")
         self.msgbox.place(x=1070,y=750)
 
+        self.back = ctk.CTkButton(self, text="Go Back", command=self.back)
+        self.back.place(x=1250, y=650)
+
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def add(self):
@@ -263,17 +267,22 @@ class new_log(ctk.CTkToplevel):
 
     def on_close(self):
         self.destroy()
-        self.master.destroy()
+        root = self.parent
+        while root.master is not None:
+            root = root.master
+        root.destroy()
+
+    def back(self):
+        self.destroy()
+        self.parent.deiconify()
 
 sky3=Image.open("images/sky3.jpg")
 sky3p=sky3.resize((1400, 800)).filter(ImageFilter.GaussianBlur(radius=3))
 
-def frame_crop_log(x, y, w, h):
-    return ctk.CTkImage(dark_image=sky3p.crop((x+15, y+180, x+15+w,y+180+ h)),size=(w,h))
-
 class old_log(ctk.CTkToplevel):
     def __init__(self,parent):
         super().__init__(parent)
+        self.parent = parent
 
         window_width = 1400
         window_height = 800
@@ -338,6 +347,14 @@ class old_log(ctk.CTkToplevel):
         self.filter = ctk.CTkButton(self, text="Filter", command=self.filter)
         self.filter.place(x=1150, y=320)
 
+        self.reset = ctk.CTkButton(self, text="Reset", command=self.reset)
+        self.reset.place(x=1150, y=370)
+
+        self.back = ctk.CTkButton(self, text="Go Back", command=self.back)
+        self.back.place(x=1150, y=700)
+
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
     def show_data(self, logs):
         for row_index, log in enumerate(logs):
             row_frame = ctk.CTkFrame(self.logs_frame, fg_color="gray15", corner_radius=5)
@@ -374,7 +391,18 @@ class old_log(ctk.CTkToplevel):
 
     def on_close(self):
         self.destroy()
-        self.master.destroy()
+        root = self.parent
+        while root.master is not None:
+            root = root.master
+        root.destroy()
+
+    def reset(self):
+        self.clear_rows()
+        self.show_data(backend.get_it_ALL())
+
+    def back(self):
+        self.destroy()
+        self.parent.deiconify()
 
 
 ctk.set_appearance_mode("dark")
