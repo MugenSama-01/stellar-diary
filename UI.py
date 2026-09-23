@@ -388,6 +388,9 @@ class old_log(ctk.CTkToplevel):
             hip = "--"
         logs = backend.filter(date, hip)
         self.show_data(logs)
+        if not hasattr(self, 'visualise') or not self.visualise.winfo_exists():
+            self.visualise = ctk.CTkButton(self, text="visualise",command=backend.simulation_logs(logs))
+            self.visualise.place(x=1150, y=430)
 
     def on_close(self):
         self.destroy()
@@ -399,6 +402,8 @@ class old_log(ctk.CTkToplevel):
     def reset(self):
         self.clear_rows()
         self.show_data(backend.get_it_ALL())
+        if self.visualise.winfo_exists():
+            self.visualise.destroy()
 
     def back(self):
         self.destroy()

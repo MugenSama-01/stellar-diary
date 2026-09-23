@@ -10,6 +10,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import asyncio
 import location
+import simulation
 
 status,lat,lon= asyncio.run(location.get_windows_location())#[lat,lon]
 
@@ -145,16 +146,33 @@ def get_it_ALL():
     mc.execute(i)
     return mc.fetchall()
 
+
 def filter(date, hip):
-    if date=="--":
-        i = "SELECT * FROM Observation WHERE hip_id = ?"
-        mc.execute(i, (hip,))
+    # 1. New check: If no filters are applied, return everything
+    if date == "--" and hip == "--":
+        mc.execute("SELECT * FROM Observation")
         return mc.fetchall()
-    if hip=="--":
-        i = "SELECT * FROM Observation WHERE date = ?"
-        mc.execute(i, (date,))
+
+    if date == "--":
+        mc.execute("SELECT * FROM Observation WHERE hip_id = ?", (hip,))
         return mc.fetchall()
-    i="SELECT * FROM Observation WHERE hip_id = ? and date = ?"
-    mc.execute(i, (hip,date,))
+
+    if hip == "--":
+        mc.execute("SELECT * FROM Observation WHERE date = ?", (date,))
+        return mc.fetchall()
+
+    mc.execute("SELECT * FROM Observation WHERE hip_id = ? and date = ?", (hip, date))
     return mc.fetchall()
+
+def simulation_logs(memory):
+    print(memory)
+    sim_list=[]
+    brightness_list=["", "Faint","low", "Medium","High"]
+    if memory:
+        for i in memory:
+            sim_list.append([i[10],i[11],brightness_list.index(i[13])])
+    print(sim_list)
+
+    #simulation.make_it_alive(sim_list)
+
 
