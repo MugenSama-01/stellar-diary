@@ -3,6 +3,6 @@
 __pycache__/
 *.pyc
 hip_main.dat
-new log.py
-Old log.py
-sql test.py
+new_log.py
+old_log.py
+sql_test.py
