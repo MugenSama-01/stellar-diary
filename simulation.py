@@ -1,19 +1,21 @@
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import math
+import multiprocessing
 
-import backend
-
-
-def make_it_alive(logs):
+def make_it_real(logs):
     print(logs)
     app = Ursina()
 
-    window.color = color.black
+    input_handler = Entity()
 
-    def input(key):
+    def handle_input(key):
         if key == 'escape':
             application.quit()
+
+    input_handler.input = handle_input
+
+    window.color = color.black
 
     player = FirstPersonController()
     player.speed = 0

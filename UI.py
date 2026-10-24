@@ -389,7 +389,7 @@ class old_log(ctk.CTkToplevel):
         logs = backend.filter(date, hip)
         self.show_data(logs)
         if not hasattr(self, 'visualise') or not self.visualise.winfo_exists():
-            self.visualise = ctk.CTkButton(self, text="visualise",command=backend.simulation_logs(logs))
+            self.visualise = ctk.CTkButton(self, text="visualise",command=lambda : backend.simulation_logs(logs))
             self.visualise.place(x=1150, y=430)
 
     def on_close(self):

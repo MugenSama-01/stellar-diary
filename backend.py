@@ -172,7 +172,6 @@ def simulation_logs(memory):
         for i in memory:
             sim_list.append([i[10],i[11],brightness_list.index(i[13])])
     print(sim_list)
-
-    #simulation.make_it_alive(sim_list)
+    simulation.make_it_real(sim_list)
 
 
