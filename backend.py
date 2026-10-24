@@ -165,13 +165,15 @@ def filter(date, hip):
     return mc.fetchall()
 
 def simulation_logs(memory):
-    print(memory)
-    sim_list=[]
-    brightness_list=["", "Faint","low", "Medium","High"]
+    print("Simulation memory logs:", memory)
+    sim_list = []
+    brightness_map = {"": 1, "faint": 1, "low": 2, "medium": 3, "high": 4}
     if memory:
         for i in memory:
-            sim_list.append([i[10],i[11],brightness_list.index(i[13])])
-    print(sim_list)
+            b_key = str(i[13]).strip().lower() if len(i) > 13 else ""
+            b_val = brightness_map.get(b_key, 2)
+            sim_list.append([i[10], i[11], b_val])
+    print("Prepared simulation list:", sim_list)
     simulation.make_it_real(sim_list)
 
 

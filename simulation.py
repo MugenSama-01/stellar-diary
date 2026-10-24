@@ -1,16 +1,19 @@
-from ursina import *
-from ursina.prefabs.first_person_controller import FirstPersonController
 import math
 import multiprocessing
 
-def make_it_real(logs):
-    print(logs)
-    app = Ursina()
+_sim_process = None
+
+
+def _run_ursina_app(logs):
+    from ursina import Ursina, Entity, color, window, application
+    from ursina.prefabs.first_person_controller import FirstPersonController
+
+    app = Ursina(title="Stellar Diary - 3D Celestial Sphere", borderless=False)
 
     input_handler = Entity()
 
     def handle_input(key):
-        if key == 'escape':
+        if key in ('escape', 'q'):
             application.quit()
 
     input_handler.input = handle_input
@@ -42,6 +45,18 @@ def make_it_real(logs):
         y = sphere_radius * math.sin(alt_rad)
         z = sphere_radius * math.cos(alt_rad) * math.cos(az_rad)
 
-        Entity(model='sphere', color=color.white, scale=brightness * 0.5, position=(x, y, z), unlit=True)
+        scale_val = max(0.4, float(brightness) * 0.5)
+        Entity(model='sphere', color=color.white, scale=scale_val, position=(x, y, z), unlit=True)
 
     app.run()
+
+
+def make_it_real(logs):
+    global _sim_process
+    # If a simulation process is currently running, terminate it before starting a fresh one
+    if _sim_process is not None and _sim_process.is_alive():
+        _sim_process.terminate()
+        _sim_process.join(timeout=1)
+
+    _sim_process = multiprocessing.Process(target=_run_ursina_app, args=(logs,), daemon=True)
+    _sim_process.start()

@@ -389,8 +389,10 @@ class old_log(ctk.CTkToplevel):
         logs = backend.filter(date, hip)
         self.show_data(logs)
         if not hasattr(self, 'visualise') or not self.visualise.winfo_exists():
-            self.visualise = ctk.CTkButton(self, text="visualise",command=lambda : backend.simulation_logs(logs))
+            self.visualise = ctk.CTkButton(self, text="Visualise", command=lambda l=logs: backend.simulation_logs(l))
             self.visualise.place(x=1150, y=430)
+        else:
+            self.visualise.configure(command=lambda l=logs: backend.simulation_logs(l))
 
     def on_close(self):
         self.destroy()
@@ -402,7 +404,7 @@ class old_log(ctk.CTkToplevel):
     def reset(self):
         self.clear_rows()
         self.show_data(backend.get_it_ALL())
-        if self.visualise.winfo_exists():
+        if hasattr(self, 'visualise') and self.visualise.winfo_exists():
             self.visualise.destroy()
 
     def back(self):
@@ -410,8 +412,12 @@ class old_log(ctk.CTkToplevel):
         self.parent.deiconify()
 
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+if __name__ == '__main__':
+    import multiprocessing
+    multiprocessing.freeze_support()
 
-app=main()
-app.mainloop()
+    ctk.set_appearance_mode("dark")
+    ctk.set_default_color_theme("blue")
+
+    app = main()
+    app.mainloop()
