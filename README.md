@@ -12,7 +12,7 @@
 ---
 
 ### 🚀 Project Status
-**Current Progress:** `🟢🟢🟢🟢🟢🟢🟢🟢🟢⚪` **(90% Complete)**
+**Current Progress:** `🟢🟢🟢🟢🟢🟢🟢⚪⚪⚪` **(70% Complete)**
 
 Stellar Diary (Project Lumen) is a dedicated astronomical logbook designed to bridge the gap between naked-eye stargazing observations and digital computational astronomy. It empowers visual astronomers to record structured celestial observations, automatically compute astronomical coordinates (Altitude/Azimuth) via NASA ephemerides, and recreate the sky of any logged night inside an interactive 3D celestial sphere.
 
