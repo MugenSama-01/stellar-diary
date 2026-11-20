@@ -1,4 +1,3 @@
-import sqlite3
 import customtkinter as ctk
 from PIL import Image, ImageFilter
 from tkcalendar import Calendar

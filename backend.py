@@ -12,10 +12,19 @@ import asyncio
 import location
 import simulation
 
-status,lat,lon= asyncio.run(location.get_windows_location())#[lat,lon]
+status,lat,lon=asyncio.run(location.get_location())
 
-with load.open(hipparcos.URL) as f:
-    df = hipparcos.load_dataframe(f)
+HIPPARCOS_BACKUP_URL = (
+    "https://web.archive.org/web/20250627160000if_/"
+    "https://cdsarc.cds.unistra.fr/ftp/cats/I/239/hip_main.dat"
+)
+
+try:
+    with load.open(hipparcos.URL) as f:
+        df = hipparcos.load_dataframe(f)
+except OSError:
+    with load.open(HIPPARCOS_BACKUP_URL) as f:
+        df = hipparcos.load_dataframe(f)
 
 planets = load('de421.bsp')
 earth = planets['earth']

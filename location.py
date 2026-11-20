@@ -1,8 +1,8 @@
 import asyncio
-import winrt.windows.devices.geolocation as geolocation
+import sys
 
 async def get_windows_location():
-    # 1. Request permission from Windows
+    import winrt.windows.devices.geolocation as geolocation
     access_status = await geolocation.Geolocator.request_access_async()
 
     # 2. Check if Windows allows Python to access location
@@ -34,3 +34,37 @@ async def get_windows_location():
     except Exception as e:
         print(f"Failed to get location: {e}")
         return False,"-","-"
+
+def _fetch_geoclue_sync():
+    import gi
+    gi.require_version('Geoclue', '2.0')
+    from gi.repository import Geoclue
+
+    simple = Geoclue.Simple.new_sync(
+                "python-geo-app",
+                Geoclue.AccuracyLevel.EXACT,
+                None)
+    
+    location = simple.get_location()
+    return location.get_property("latitude"), location.get_property("longitude")
+
+
+async def get_linux_location():
+    
+    try:
+        lat,lon = await asyncio.to_thread(_fetch_geoclue_sync)
+        print(f"Location Found: {lat}, {lon}")
+        return True, lat, lon
+    
+    except Exception as e:
+        print(f"Failed to get location: {e}")
+        return False,"-","-"
+
+async def get_location():
+    if sys.platform == "win32":
+        return await get_windows_location()
+    elif sys.platform.startswith("linux"):
+        return await get_linux_location()
+    else:
+        print(f"Unsupported OS: {sys.platform}")
+        return False, "-", "-"
